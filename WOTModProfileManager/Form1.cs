@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.IO;
 using System.Resources;
 using WOTModProfiles;
+using WoTModProfileManager;
+using WOTMPMNewProfileDialog;
 
 namespace WoTModProfileManager
 {
@@ -27,7 +29,9 @@ namespace WoTModProfileManager
         {
             set
             {
-                richTextBoxLog.AppendText(value + "\n");
+                String dateTime = DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss");
+                String dT = "[" + dateTime.ToString() + "] ";
+                richTextBoxLog.AppendText(dT + value + "\n");
             }
         }
 
@@ -68,18 +72,18 @@ namespace WoTModProfileManager
             //richTextBoxProfileNotes.KeyPress += new System.Windows.Forms.KeyPressEventHandler(richTextBoxProfileNotes_KeyPress);
         }
 
-        public void addProfileFolderItem(String key, String text, int image)
+        /*public void addProfileFolderItem(String key, String text, int image)
         {
             treeViewProfileFolder.Nodes.Add(key,text,image);
-        }
+        }*/
 
         public void populateTreeView(String path, String linkedProfile)
         {
+            log = "Loading profile Folder '" + path + "'";
             treeViewProfileFolder.Nodes.Clear();
             treeViewProfileFolder.Nodes.Add(linkedProfile);
             treeViewProfileFolder.Nodes[0].Expand();
             populateTreeView(path, treeViewProfileFolder.Nodes[0]);
-
         }
 
         private void populateTreeView(string directoryValue, TreeNode parentNode)
@@ -112,6 +116,7 @@ namespace WoTModProfileManager
 
         public void populateDropDown(List<WOTProfile> profilesList)
         {
+            comboBoxProfiles.DataSource = null;
             comboBoxProfiles.DataSource = profilesList;
             comboBoxProfiles.DisplayMember = "Name";
             comboBoxProfiles.ValueMember = "Value";
@@ -120,7 +125,7 @@ namespace WoTModProfileManager
         
         private void comboBoxProfiles_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            Program.loadProfileInfo(comboBoxProfiles.SelectedValue.ToString());
+            Program.loadProfile(comboBoxProfiles.SelectedValue.ToString());
         }
 
         private void richTextBoxProfileNotes_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs ex)
@@ -143,7 +148,25 @@ namespace WoTModProfileManager
         {
             Program.startWOTWithoutMods();
         }
-    }
 
-   
+        private void buttonProfileNew_Click(object sender, EventArgs e)
+        {
+            newProfileDialog  nPD = new newProfileDialog();
+            nPD.ShowDialog(this);
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://klonk-clan.de");
+        }
+
+        private void buttonProfileDelete_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Do you realy want to delete the profile '" + Program.getProfileNameFromProfileFolder(comboBoxProfiles.SelectedValue.ToString()) + "'?", "Realy?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if(result == DialogResult.Yes)
+            {
+                Program.deleteProfile(comboBoxProfiles.SelectedValue.ToString());
+            }
+        }
+    }   
 }
