@@ -126,11 +126,6 @@ namespace WoTModProfileManager
 
         public static String getProfileNameFromProfileFolder(String folder)
         {
-            /*if (folder == originalModProfile)
-            {
-                return originalModProfile;
-            }*/
-
             return folder.Substring(modFolderPrefixLength);
         }
 
@@ -144,7 +139,7 @@ namespace WoTModProfileManager
                     SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), wot.getResModsFolderPath() + profile);
                     mainForm.log = "Link to new mod folder '" + profile + "' created. Starting WoT ...";
                     loadProfile(); //reload profile list to mark new selected profile
-                    //start wot!
+                    startWot();
                     return;
                 }
                 catch (Exception ex)
@@ -154,7 +149,7 @@ namespace WoTModProfileManager
                     MessageBox.Show("Could not link the selected Profile, Sorry.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }              
             }
-            //start wot!
+            startWot();
            
         }
 
@@ -168,7 +163,7 @@ namespace WoTModProfileManager
                     SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), emptyModFolder);
                     mainForm.log = "Link to original mod folder '" + wot.getGameVersion() + "_original' created. Starting WoT ...";
                     loadProfile(); //reload profile list to mark new selected profile
-                    //start wot!
+                    startWot();
                     return;
                 }
                 catch (Exception ex)
@@ -176,8 +171,8 @@ namespace WoTModProfileManager
                     mainForm.log = "Exception occured!";
                     mainForm.log = ex.Message;
                     MessageBox.Show("Could not link the selected Profile, Sorry.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }  
-                //start wot!
+                }
+                startWot();
             }
         }
 
@@ -191,7 +186,7 @@ namespace WoTModProfileManager
             }
             else
             {
-                DialogResult result = MessageBox.Show("This seems to be the first time you start WotModProfileManager or WoT was updated. So the MOD folder '" + wot.getGameVersion() + "' is not managed by WoTModProfileManager! Klick [YES] if you want to use this folder as the original folder (already installed MODs won't be deleted) or [NO] and we delet it and create a new one (already installed MODs will be lost!).", "This is new, isn't it?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show("This seems to be the first time you start WotModProfileManager or WoT was updated. So the MOD folder '" + wot.getGameVersion() + "' is not managed by WoTModProfileManager! Klick [YES] if you want to use this folder as the original folder (already installed MODs won't be deleted) or [NO] and we delete it and create a new one (already installed MODs will be lost!).", "This is new, isn't it?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                 if (result == DialogResult.Cancel)
                 {
                     Environment.Exit(1);
@@ -318,6 +313,11 @@ namespace WoTModProfileManager
                 mainForm.log = ex.Message;
                 MessageBox.Show("Something went wrong, see log for details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private static void startWot()
+        {
+            System.Diagnostics.Process.Start(wot.getGameExeFullPath());
         }
     }
 }

@@ -87,5 +87,10 @@ namespace WoTModProfileManager
         {
             resModsFolderPath = WOTPath + modFolder + "\\";
         }
+
+        public string getGameExeFullPath()
+        {
+            return WOTPath + gameEXE;
+        }
     }
 }
