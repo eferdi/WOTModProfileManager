@@ -1,6 +1,10 @@
 # WOTModProfileManager
 Manage your World of Tanks Mods with Profiles. This allows different Mods for different users.
 
+Download the latest version here: https://github.com/eferdi/WOTModProfileManager/releases
+
+No installation required.
+
 ##How does it work?
 
 Every World of Tanks version has its own MOD folder. 
