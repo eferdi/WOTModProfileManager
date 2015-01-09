@@ -61,8 +61,11 @@ namespace WoTModProfileManager
             mainForm.log = "WorldOfTanks.exe version: " + wot.getGameVersion();
             mainForm.launcherVersion = wot.getLauncherVersion();
 
-            loadProfile();
-                        
+            runSomeTests();
+
+            loadProfilesList();
+            loadProfile();                        
+
             Application.Run(mainForm);
         }
 
@@ -138,7 +141,7 @@ namespace WoTModProfileManager
 		            Directory.Delete(wot.getModFolderPath());
                     SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), wot.getResModsFolderPath() + profile);
                     mainForm.log = "Link to new mod folder '" + profile + "' created. Starting WoT ...";
-                    loadProfile(); //reload profile list to mark new selected profile
+                    loadProfilesList(); //reload profile list to mark new selected profile
                     startWot();
                     return;
                 }
@@ -162,7 +165,7 @@ namespace WoTModProfileManager
                     Directory.Delete(wot.getModFolderPath());
                     SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), emptyModFolder);
                     mainForm.log = "Link to original mod folder '" + wot.getGameVersion() + "_original' created. Starting WoT ...";
-                    loadProfile(); //reload profile list to mark new selected profile
+                    loadProfilesList(); //reload profile list to mark new selected profile
                     startWot();
                     return;
                 }
@@ -247,7 +250,7 @@ namespace WoTModProfileManager
 
         public static void loadProfile(String profile)
         {
-            loadProfilesList();
+            //loadProfilesList();
             mainForm.populateDropDown(profiles);
             mainForm.populateTreeView(wot.getModFolderPath(), profile);
             loadProfileNote(profile);
@@ -318,6 +321,13 @@ namespace WoTModProfileManager
         private static void startWot()
         {
             System.Diagnostics.Process.Start(wot.getGameExeFullPath());
+        }
+
+        private static void runSomeTests()
+        {
+            //TODO Check if mod folder realy exists
+            //TODO check if user is allowed to performe soft link actions
+            //TODO buy me a coke
         }
     }
 }

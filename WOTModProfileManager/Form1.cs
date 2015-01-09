@@ -79,17 +79,19 @@ namespace WoTModProfileManager
 
         public void populateTreeView(String path, String linkedProfile)
         {
-            log = "Loading profile Folder '" + path + "'";
+            log = "Loading profile Folder '" + path + linkedProfile + "'";
             treeViewProfileFolder.Nodes.Clear();
             treeViewProfileFolder.Nodes.Add(linkedProfile);
-            treeViewProfileFolder.Nodes[0].Expand();
             populateTreeView(path, treeViewProfileFolder.Nodes[0]);
+            treeViewProfileFolder.Nodes[0].Expand();
         }
 
         private void populateTreeView(string directoryValue, TreeNode parentNode)
         {
             string[] directoryArray = Directory.GetDirectories(directoryValue);
+            string[] fileArray = Directory.GetFiles(directoryValue);
             String substringDirectory; 
+            String substringFile;
 
             try
             {
@@ -97,14 +99,22 @@ namespace WoTModProfileManager
                 {
                     foreach (string directory in directoryArray)
                     {
-                        substringDirectory = directory.Substring(
-                        directory.LastIndexOf('\\') + 1,
-                        directory.Length - directory.LastIndexOf('\\') - 1);
+                        substringDirectory = directory.Substring( directory.LastIndexOf('\\') + 1, directory.Length - directory.LastIndexOf('\\') - 1);
 
                         TreeNode myNode = new TreeNode(substringDirectory);
                         parentNode.Nodes.Add(myNode);
 
                         populateTreeView(directory, myNode);
+                    }
+                }
+
+                if (fileArray.Length != 0)
+                {
+                    foreach (string file in fileArray)
+                    {
+                        substringFile = file.Substring(file.LastIndexOf('\\') + 1, file.Length - file.LastIndexOf('\\') - 1);
+                        TreeNode myNode = new TreeNode(substringFile);
+                        parentNode.Nodes.Add(myNode);
                     }
                 }
             }

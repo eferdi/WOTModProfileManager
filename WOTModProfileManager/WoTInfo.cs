@@ -6,6 +6,7 @@ using System.Resources;
 using Microsoft.Win32;
 using System.Security.AccessControl;
 using System.Diagnostics;
+using System.IO;
 
 namespace WoTModProfileManager
 {
@@ -24,12 +25,15 @@ namespace WoTModProfileManager
         public WoTInfo()
         {
             // Save user prefs to reg.
-            RegistryKey regKey = Registry.LocalMachine;
+            RegistryKey regKey = Registry.ClassesRoot;//.LocalMachine;
             //regKey = regKey.OpenSubKey("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{1EAC1D02-C6AC-4FA6-9A44-96258C37C812EU}_is1", RegistryKeyPermissionCheck.Default, rs);
             //regKey = regKey.OpenSubKey("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{1EAC1D02-C6AC-4FA6-9A44-96258C37C812EU}_is1");
-            regKey = regKey.OpenSubKey("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{1EAC1D02-C6AC-4FA6-9A44-96258C37C812}_is1"); //Wargaming removed the EU TODO: catch exception
+            //regKey = regKey.OpenSubKey("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{1EAC1D02-C6AC-4FA6-9A44-96258C37C812}_is1"); //Wargaming removed the EU TODO: catch exception
+            regKey = regKey.OpenSubKey(".wotreplay\\shell\\open\\command");
             string[] valueNames = regKey.GetValueNames();
-            WOTPath = (String) regKey.GetValue("InstallLocation", "ERROR");
+            //WOTPath = (String) regKey.GetValue("InstallLocation", "ERROR");
+            WOTPath = (String) regKey.GetValue(null, "ERROR");
+            WOTPath = WOTPath.Substring(1, WOTPath.Length - 23);
 
             setGameVersion();
             setLauncherVersion();
@@ -65,17 +69,31 @@ namespace WoTModProfileManager
 
         private void setGameVersion()
         {
-            FileVersionInfo gameExeFileVersionInfo = FileVersionInfo.GetVersionInfo(WOTPath + gameEXE);
-            gameVersion = gameExeFileVersionInfo.ProductVersion;
-            gameVersion = gameVersion.Replace(", ", ".");
-            int lastDot = gameVersion.LastIndexOf('.');
-            gameVersion = gameVersion.Substring(0, (lastDot));
+            if (File.Exists(getGameExeFullPath()))
+            {
+                FileVersionInfo gameExeFileVersionInfo = FileVersionInfo.GetVersionInfo(getGameExeFullPath());
+                gameVersion = gameExeFileVersionInfo.ProductVersion;
+                gameVersion = gameVersion.Replace(", ", ".");
+                int lastDot = gameVersion.LastIndexOf('.');
+                gameVersion = gameVersion.Substring(0, (lastDot));
+            }
+            else
+            {
+                //TODO write log, inform user 
+            }
         }
 
         private void setLauncherVersion()
         {
-            FileVersionInfo launcherEXEFileVersionInfo = FileVersionInfo.GetVersionInfo(WOTPath + launcherEXE);
-            launcherVersion = launcherEXEFileVersionInfo.ProductVersion;
+            if (File.Exists(getGameLauncherExeFullPath()))
+            {
+                FileVersionInfo launcherEXEFileVersionInfo = FileVersionInfo.GetVersionInfo(getGameLauncherExeFullPath());
+                launcherVersion = launcherEXEFileVersionInfo.ProductVersion;
+            }
+            else
+            {
+                //TODO write log, inform user 
+            }
         }
 
         private void setModFolderPath()
@@ -91,6 +109,11 @@ namespace WoTModProfileManager
         public string getGameExeFullPath()
         {
             return WOTPath + gameEXE;
+        }
+
+        public string getGameLauncherExeFullPath()
+        {
+            return WOTPath + launcherEXE;
         }
     }
 }
