@@ -17,6 +17,8 @@ namespace WoTModProfileManager
 {
     public partial class Form1 : Form
     {
+       private static gameIsRunning gameIsRunning;
+
        public TreeNode profileFolder
         { 
             set 
@@ -69,6 +71,7 @@ namespace WoTModProfileManager
             comboBoxProfiles.SelectionChangeCommitted += new EventHandler(comboBoxProfiles_SelectionChangeCommitted);
             buttonStartWOTWMods.Click += new EventHandler(buttonStartWOTWMods_Click);
             buttonStartWOTWOMods.Click += new EventHandler(buttonStartWOTWOMods_Click);
+            gameIsRunning = new gameIsRunning();
             //richTextBoxProfileNotes.KeyPress += new System.Windows.Forms.KeyPressEventHandler(richTextBoxProfileNotes_KeyPress);
         }
 
@@ -87,14 +90,14 @@ namespace WoTModProfileManager
         }
 
         private void populateTreeView(string directoryValue, TreeNode parentNode)
-        {
-            string[] directoryArray = Directory.GetDirectories(directoryValue);
-            string[] fileArray = Directory.GetFiles(directoryValue);
-            String substringDirectory; 
-            String substringFile;
-
+        {  
             try
             {
+                string[] directoryArray = Directory.GetDirectories(directoryValue);
+                string[] fileArray = Directory.GetFiles(directoryValue);
+                String substringDirectory; 
+                String substringFile;
+
                 if (directoryArray.Length != 0)
                 {
                     foreach (string directory in directoryArray)
@@ -121,6 +124,12 @@ namespace WoTModProfileManager
             catch (UnauthorizedAccessException)
             {
                 parentNode.Nodes.Add("#-Access denied-#");
+            }
+            catch (Exception ex)
+            {
+                log = "Exception occured!";
+                log = ex.Message;
+                MessageBox.Show("Exception occured! See log for details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -177,6 +186,16 @@ namespace WoTModProfileManager
             {
                 Program.deleteProfile(comboBoxProfiles.SelectedValue.ToString());
             }
+        }
+
+        public void showGameIsRunning()
+        {
+            gameIsRunning.ShowDialog(this);
+        }
+
+        public void hideGameIsRunning()
+        {
+            gameIsRunning.Hide();
         }
     }   
 }
