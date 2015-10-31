@@ -48,6 +48,7 @@
             this.comboBoxProfiles = new System.Windows.Forms.ComboBox();
             this.labelProfile = new System.Windows.Forms.Label();
             this.tabSettings = new System.Windows.Forms.TabPage();
+            this.label8 = new System.Windows.Forms.Label();
             this.tabLog = new System.Windows.Forms.TabPage();
             this.richTextBoxLog = new System.Windows.Forms.RichTextBox();
             this.tabAbout = new System.Windows.Forms.TabPage();
@@ -60,7 +61,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.eventLog1 = new System.Diagnostics.EventLog();
-            this.label8 = new System.Windows.Forms.Label();
             this.tabContainer.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.groupBoxProfileFolder.SuspendLayout();
@@ -233,7 +233,7 @@
             this.buttonStartWOTWOMods.Name = "buttonStartWOTWOMods";
             this.buttonStartWOTWOMods.Size = new System.Drawing.Size(133, 23);
             this.buttonStartWOTWOMods.TabIndex = 11;
-            this.buttonStartWOTWOMods.Text = "w/o MODs";
+            this.buttonStartWOTWOMods.Text = "without MODs";
             this.buttonStartWOTWOMods.UseVisualStyleBackColor = false;
             // 
             // buttonStartWOTWMods
@@ -285,6 +285,15 @@
             this.tabSettings.TabIndex = 1;
             this.tabSettings.Text = "Settings";
             this.tabSettings.UseVisualStyleBackColor = true;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(240, 274);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(31, 13);
+            this.label8.TabIndex = 0;
+            this.label8.Text = "nope";
             // 
             // tabLog
             // 
@@ -409,15 +418,6 @@
             // eventLog1
             // 
             this.eventLog1.SynchronizingObject = this;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(240, 274);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(31, 13);
-            this.label8.TabIndex = 0;
-            this.label8.Text = "nope";
             // 
             // Form1
             // 

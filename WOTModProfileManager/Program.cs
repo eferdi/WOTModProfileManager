@@ -27,6 +27,7 @@ namespace WoTModProfileManager
         private static String originalModFolder;
         private static String emptyModProfile;
         private static String originalModProfile;
+        private static String profileFolder;
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
@@ -40,12 +41,13 @@ namespace WoTModProfileManager
             mainForm = new Form1();
             wot = new WoTInfo();
 
-            modFolderPrefixLength = (modFolderPrefix + wot.getGameVersion()).Length + 1;
-
-            emptyModProfile = wot.getGameVersion() + "_empty";
-            emptyModFolder = wot.getResModsFolderPath() + emptyModProfile;
-            originalModProfile = modFolderPrefix + wot.getGameVersion() + "_ORIGINAL";
-            originalModFolder = wot.getResModsFolderPath() + originalModProfile;
+            modFolderPrefixLength = modFolderPrefix.Length;
+                        
+            profileFolder = wot.getWOTPath() + "WOTModProfileManager\\Profiles\\";
+            emptyModProfile = modFolderPrefix + "EMPTY";
+            emptyModFolder = profileFolder + emptyModProfile;
+            originalModProfile = modFolderPrefix + "ORIGINAL";
+            originalModFolder = profileFolder + originalModProfile;
 
             if (wot.getWOTPath() != "no WoT installation found")
             {
@@ -72,7 +74,7 @@ namespace WoTModProfileManager
         private static void loadProfilesList()
         {
             profiles.Clear();
-            string[] directoryArray = Directory.GetDirectories(wot.getResModsFolderPath());
+            string[] directoryArray = Directory.GetDirectories(profileFolder);
             mainForm.log = "loading Profiles ...";
 
             profiles.Add(new WOTProfile() { Name = "<select a profile>", Value = "" });
@@ -98,7 +100,7 @@ namespace WoTModProfileManager
         {
             try
             {
-                using (StreamReader sr = new StreamReader(wot.getResModsFolderPath() + profile + "\\profile_notes.txt"))
+                using (StreamReader sr = new StreamReader(profileFolder + profile + "\\profile_notes.txt"))
                 {
                     String line = sr.ReadToEnd();
                     mainForm.profileNotes = line;
@@ -115,7 +117,7 @@ namespace WoTModProfileManager
         {
             try
             {
-                using (StreamWriter outfile = new StreamWriter(wot.getResModsFolderPath() + profile + "\\" + profileNotesTxt))
+                using (StreamWriter outfile = new StreamWriter(profileFolder + profile + "\\" + profileNotesTxt))
                 {
                     outfile.Write(note);
                 }
@@ -134,12 +136,12 @@ namespace WoTModProfileManager
 
         public static void startWOTWithSelectedProfile(String profile)
         {
-            if (profile != getProfileFolderFromProfilePath(SymbolicLink.GetTarget(wot.getModFolderPath())))
+            if (profile != getProfileFolderFromProfilePath(SymbolicLink.GetTarget(wot.getResModsFolderPath())))
             {
                 try 
                 {	        
-		            Directory.Delete(wot.getModFolderPath());
-                    SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), wot.getResModsFolderPath() + profile);
+		            Directory.Delete(wot.getResModsFolderPath());
+                    SymbolicLink.CreateDirectoryLink(wot.getResModsFolderPath(), profileFolder + profile);
                     mainForm.log = "Link to new mod folder '" + profile + "' created. Starting WoT ...";
                     linkedModProfile = profile;
                     loadProfilesList(); //reload profile list to mark new selected profile
@@ -160,13 +162,13 @@ namespace WoTModProfileManager
 
         public static void startWOTWithoutMods()
         {
-            if (wot.getGameVersion() + "_empty" != SymbolicLink.GetTarget(wot.getModFolderPath()))
+            if (emptyModFolder != SymbolicLink.GetTarget(wot.getResModsFolderPath()))
             {
                 try
                 {	 
-                    Directory.Delete(wot.getModFolderPath());
-                    SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), emptyModFolder);
-                    mainForm.log = "Link to original mod folder '" + wot.getGameVersion() + "_original' created. Starting WoT ...";
+                    Directory.Delete(wot.getResModsFolderPath());
+                    SymbolicLink.CreateDirectoryLink(wot.getResModsFolderPath(), emptyModFolder);
+                    mainForm.log = "Link to original mod folder '" + originalModProfile + "' created. Starting WoT ...";
                     linkedModProfile = emptyModProfile;
                     loadProfilesList(); //reload profile list to mark new selected profile
                     loadProfile();
@@ -183,12 +185,12 @@ namespace WoTModProfileManager
             }
         }
 
+        // TODO: check if the correct version folder is in the profile folder!
         private static void loadProfile()
         {
-            String tmpLinkedModFolder = SymbolicLink.GetTarget(wot.getModFolderPath());
+            String tmpLinkedModFolder = SymbolicLink.GetTarget(wot.getResModsFolderPath());
             if (tmpLinkedModFolder != null)
             {
-
                 linkedModProfile = tmpLinkedModFolder.Substring(tmpLinkedModFolder.LastIndexOf('\\') + 1);
             }
             else
@@ -202,6 +204,7 @@ namespace WoTModProfileManager
                 if (!Directory.Exists(emptyModFolder))
                 {
                     Directory.CreateDirectory(emptyModFolder);
+                    Directory.CreateDirectory(emptyModFolder + "\\" + wot.getGameVersion());
                     StreamWriter sw = File.CreateText(emptyModFolder + "\\" + profileNotesTxt);
                     sw.Write("Empty profile, no MODs will be loaded");
                     sw.Close();
@@ -211,24 +214,24 @@ namespace WoTModProfileManager
                 {
                     if (!Directory.Exists(originalModFolder))
                     {
-                        Directory.Move(wot.getModFolderPath(), originalModFolder);
+                        Directory.Move(wot.getResModsFolderPath(), originalModFolder);
                         StreamWriter sw = File.CreateText(originalModFolder + "\\" + profileNotesTxt);
                         sw.Write("ORIGINAL MOD folder which existed as WoTModProfileManager was started the first time.");
                         sw.Close();
-                        SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), originalModFolder);
+                        SymbolicLink.CreateDirectoryLink(wot.getResModsFolderPath(), originalModFolder);
                         loadProfilesList();
                         loadProfile();
                     }
                     else
                     {
                         String rndBackupFolder = originalModProfile + "_backup_" + (new Random().Next(100, 999).ToString());
-                        Directory.Move(wot.getModFolderPath(), (wot.getResModsFolderPath() + rndBackupFolder));
+                        Directory.Move(wot.getResModsFolderPath(), (profileFolder + rndBackupFolder));
                         StreamWriter sw = File.CreateText(originalModFolder + "\\" + profileNotesTxt);
                         sw.Write("ORIGINAL MOD folder (COPY! because there was already one) which existed as WoTModProfileManager was started the first time.");
                         sw.Close();
                         MessageBox.Show("ORIGINAL profile Folder already existet, I created a nother copy and named it '" + rndBackupFolder + "'", "Magic", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         mainForm.log = "ORIGINAL profile Folder already existet, I created a nother copy and named it '" + rndBackupFolder + "'";
-                        SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), rndBackupFolder);
+                        SymbolicLink.CreateDirectoryLink(wot.getResModsFolderPath(), rndBackupFolder);
                         loadProfilesList();
                         loadProfile();
                     }
@@ -237,8 +240,8 @@ namespace WoTModProfileManager
                 {
                     try
                     {
-                        Directory.Delete(wot.getModFolderPath(), true);
-                        SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), emptyModFolder);
+                        Directory.Delete(wot.getResModsFolderPath(), true);
+                        SymbolicLink.CreateDirectoryLink(wot.getResModsFolderPath(), emptyModFolder);
                         loadProfilesList();
                         loadProfile();
                     }
@@ -259,7 +262,7 @@ namespace WoTModProfileManager
         {
             //loadProfilesList();
             mainForm.populateDropDown(profiles);
-            mainForm.populateTreeView(wot.getModFolderPath(), profile);
+            mainForm.populateTreeView(profileFolder + profile, profile);
             loadProfileNote(profile);
             /*if (profile == emptyModProfile)
             {
@@ -280,8 +283,8 @@ namespace WoTModProfileManager
         {
             try
             {
-                String newProfile = modFolderPrefix + wot.getGameVersion() + "_" + newProfileName;
-                String newProflePath = wot.getResModsFolderPath() + newProfile;
+                String newProfile = modFolderPrefix + "_" + newProfileName;
+                String newProflePath = profileFolder + newProfile;
                 
                 String dt = DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss");
                 Directory.CreateDirectory(newProflePath);
@@ -304,18 +307,18 @@ namespace WoTModProfileManager
         {
             try
             {
-                String folderForDelete = wot.getResModsFolderPath() + profile;
-                String accLinkedFolder = SymbolicLink.GetTarget(wot.getModFolderPath());
+                String folderForDelete = profileFolder + profile;
+                String accLinkedFolder = SymbolicLink.GetTarget(wot.getResModsFolderPath());
                 if (folderForDelete == accLinkedFolder)
                 {
-                    Directory.Delete(wot.getModFolderPath());
-                    while(Directory.Exists(wot.getModFolderPath()))
+                    Directory.Delete(wot.getResModsFolderPath());
+                    while(Directory.Exists(wot.getResModsFolderPath()))
                     {
                         //do nothing, wait till delet is done
                     }
-                    SymbolicLink.CreateDirectoryLink(wot.getModFolderPath(), emptyModFolder);
+                    SymbolicLink.CreateDirectoryLink(wot.getResModsFolderPath(), emptyModFolder);
                 }
-                Directory.Delete(wot.getResModsFolderPath() + profile, true);
+                Directory.Delete(profileFolder + profile, true);
                 mainForm.log = "Profile '" + profile + "' deleted!";
                 loadProfilesList();
                 loadProfile();
@@ -347,7 +350,7 @@ namespace WoTModProfileManager
                 Directory.CreateDirectory(wot.getModFolderPath());
             }
 
-            String b = SymbolicLink.GetTarget(wot.getModFolderPath());
+            String b = SymbolicLink.GetTarget(wot.getResModsFolderPath());
             if(b != null)
             {
                 linkedModProfile = getProfileFolderFromProfilePath(b);
